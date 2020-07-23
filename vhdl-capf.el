@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'dash)
+
 (defconst vhdl-capf-search-vhdl-buffers-for-candidates 3
   "If t, search in _all_ other vhdl-buffers for completions.
 When number, search in the last opened (number+1) vhdl-buffers.")
@@ -39,14 +41,6 @@ When number, search in the last opened (number+1) vhdl-buffers.")
 (defconst vhdl-capf-exclude-common-vhdl-syntax '("signal" "variable" "downto" "to" "if" "then"
 												  "begin" "end" "in" "out" "std_logic" "std_logic_vector")
   "Some often occuring VHDL syntax constructs to exclude from the possible completions-list.")
-
-(defun vhdl-capf-flatten (l)
-  "Convert a list of lists into a single list.
-Argument L is the list to be flattened."
-  (when l
-    (if (atom (first l))
-		(cons (first l) (vhdl-capf-flatten (rest l)))
-      (append (vhdl-capf-flatten (first l)) (vhdl-capf-flatten (rest l))))))
 
 (defun vhdl-capf-get-vhdl-buffers (&optional nfirst)
   "Returns a list with all buffers that are in vhdl major mode.
@@ -118,7 +112,7 @@ Optional argument LIMIT specifies the point where search for symbols shall be st
 							   (unless didchanges
 								 (setcdr (car vhdl-capf-completion-cache) (delete (buffer-substring-no-properties beg end)
 																				   (vhdl-capf-get-vhdl-symbols (point-max) (nth 0 vhdl-buffers)))))
-							   (vhdl-capf-flatten
+							   (-flatten
 								(dolist (bufcomps vhdl-capf-completion-cache vhdl-abbrevs)
 								  (push (cdr bufcomps) vhdl-abbrevs))))))))
 	  (when end
